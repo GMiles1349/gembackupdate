@@ -1,6 +1,6 @@
 # gembackupdate
 
-gembackupdate is a Linux CLI tool written in Free Pascal to help streamline timeshift system snaphots and pacman package manager updates. Then program will
+gembackupdate is a Arch Linux CLI tool written in Free Pascal to help streamline timeshift system snaphots and pacman package manager updates. Then program will
 * check for an internet connection using w get
 * check for the existence of pacman package manager
 * check for the existence of timeshift
@@ -10,6 +10,9 @@ gembackupdate is a Linux CLI tool written in Free Pascal to help streamline time
 * perform pacman updates (pacman -Syu)
 * launch timeprune (external process found in it's own repo) to delete old or excessive timeshift snapshots
 * optionally reboot the system
+
+## Notes
+  Currently, only timeshift and pacman are supported. The code checks for "yay", but at the moment, it uses only pacman anyway. I'll be adding support for btrfs snapshots, other snapshot utilites and other package managers soon-ish. I have like 6 different distros installed to an external SSD for testing with aptitude, snap, DNF and others.
 
 ## Dependencies
 
