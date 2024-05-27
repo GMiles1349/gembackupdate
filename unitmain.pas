@@ -12,7 +12,6 @@ uses
   procedure CheckOnline();
   procedure CheckParams();
   procedure CheckPrograms();
-  procedure DisplayMenu();
   procedure RankMirrors();
   procedure GetUpdateCount();
   procedure MakeSnapshot();
@@ -29,7 +28,6 @@ var
   EnableRank: Integer = 0;
   MirrorCount: Integer = 20;
   TimeOut: Integer = 10;
-  ShowMenu: Integer = 0;
   Prog: TGEMProgram;
 
 const
@@ -61,7 +59,6 @@ I: Integer;
 
     CheckOnline();
     CheckParams();
-    DisplayMenu();
     CheckPrograms(); // check for timeshift, pacman, yay
     GetUpdateCount(); // halts here on no update
     RankMirrors; // run reflector to update and rank mirrors if present
@@ -129,11 +126,9 @@ Skip: Boolean;
 
       if ParamStr(I) = '--rank' then begin
         EnableRank := 1;
-        ShowMenu := 0;
 
       end else if ParamStr(I) = '--norank' then begin
         EnableRank := 0;
-        ShowMenu := 0;
 
       end else if ParamStr(I) = '--reboot' then begin
         EnableReboot := True;
@@ -159,17 +154,6 @@ Skip: Boolean;
       end else begin
         ErrHalt('Unrecognized option "' + ParamStr(I) + '"!');
       end;
-
-    end;
-
-  end;
-
-procedure DisplayMenu();
-  begin
-
-    if ShowMenu = 1 then begin
-      // initial menu
-
 
     end;
 
