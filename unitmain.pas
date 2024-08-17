@@ -25,13 +25,13 @@ var
   Pac: String = 'pacman'; // assume yay by default, correct to pacman later if yay doesn't exist
   UpdateCount: Integer = 0;
   EnableReboot: Boolean = False;
+  RecommendReboot: Boolean = False;
   EnableRank: Integer = 0;
   MirrorCount: Integer = 20;
   TimeOut: Integer = 10;
   Prog: TGEMProgram;
 
 const
-  Ver: String = 'Version 0.1';
   Prefix: String = #27'[33m[gembackupdate]'#27'[0m ';
   FrameStr: String = '|------------------------------------------------|';
 
@@ -46,7 +46,7 @@ I: Integer;
     Prog := TGEMProgram.Create(True);
 
     WriteLn();
-    WriteLn('gembackupdate ' + Ver);
+    WriteLn('gembackupdate version ' + Prog.VersionString);
     WriteLn('Hello, ' + Prog.UserName);
     WriteLn();
 
@@ -67,6 +67,7 @@ I: Integer;
     DoTimeprune();
     DoReboot();
 
+    WriteLn(Prefix + 'All finished!');
   end;
 
 procedure CheckOnline();
@@ -250,17 +251,36 @@ op: TStringList;
 
 procedure MakeSnapshot();
 var
+EC: Integer;
+Ret: String;
 proc: TProcess;
   begin
     WriteLn(Prefix + 'Creating new timeshift snapshot...');
 
     proc := TProcess.Create(nil);
     proc.Options := proc.Options + [poWaitOnExit];
-    proc.CommandLine := 'timeshift --create --comments "gembackupdate"';
-    proc.Execute();
+    proc.Executable := '/usr/bin/timeshift';
+    proc.Parameters.Add('--create');
+    proc.Execute;
+
+    EC := proc.ExitCode;
     proc.Free();
 
-    WriteLn(Prefix + 'Snapshot created!');
+    if EC = 0 then begin
+      WriteLn(Prefix + 'Snapshot created!');
+    end else begin
+
+      WriteLn(Prefix + 'Failed to create Timeshift snapshot!');
+      Write(Prefix + 'Download and apply updates anyway?');
+
+      if gemReadLnYesNo(0) = True then begin
+        WriteLn(Prefix + 'Continuing...');
+      end else begin
+        ErrHalt('User requested abortion.');
+      end;
+
+
+    end;
   end;
 
 procedure DoUpdates();
@@ -287,12 +307,15 @@ I: Integer;
         for I := 0 to SString.Count - 1 do begin
           WriteLn(SString[I]);
 
-          CheckString := SString[I];
-          CheckString := LowerCase(CheckString);
+          CheckString := LowerCase(SString[I]);
 
           if Pos('y/n', CheckString) <> 0 then begin
             CheckString := 'y' + #10;
             proc.Input.Write(CheckString[1], Length(CheckString));
+          end;
+
+          if Pos('updating linux initcpios', CheckString) <> 0 then begin
+            RecommendReboot := True;
           end;
         end;
       end;
@@ -302,6 +325,10 @@ I: Integer;
     proc.Free();
 
     WriteLn(Prefix + 'Updates finished!');
+    if RecommendReboot = True then begin
+      WriteLn(Prefix + 'Kernel or module update/installation detected... Reboot is recommended');
+    end;
+
   end;
 
 procedure DoTimeprune();
@@ -312,11 +339,11 @@ proc: TProcess;
 
     proc := TProcess.Create(nil);
     proc.Options := proc.Options + [poWaitOnExit];
-    proc.CommandLine := 'timeprune';
+    proc.CommandLine := 'timeprune --auto-delete=true';
     proc.Execute();
     proc.Free();
 
-    WriteLn('timeprune finished!');
+    WriteLn(Prefix + 'timeprune finished!');
 
   end;
 
@@ -325,7 +352,20 @@ var
 retstr: String;
 Clock: TGEMClock;
   begin
-    if EnableReboot = False then Exit();
+    if EnableReboot = False then begin
+      if RecommendReboot = True then begin
+
+        WriteLn(Prefix + 'initcpios have been updated due to kernel or module update/installation! Reboot recommended!');
+        Write(Prefix + 'Do you want to reboot?');
+
+        if gemReadLnYesNo(1) = False then begin
+          Exit();
+        end;
+
+      end else begin
+        Exit();
+      end;
+    end;
 
     WriteLn('Rebooting in 5 seconds...');
 

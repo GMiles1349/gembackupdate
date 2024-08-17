@@ -13,6 +13,14 @@
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
+    <VersionInfo>
+      <UseVersionInfo Value="True"/>
+      <AutoIncrementBuild Value="True"/>
+      <MinorVersionNr Value="1"/>
+      <RevisionNr Value="1"/>
+      <BuildNr Value="9"/>
+      <CharSet Value="04B0"/>
+    </VersionInfo>
     <BuildModes>
       <Item Name="Default" Default="True"/>
       <Item Name="Debug">
@@ -105,6 +113,11 @@
       <OtherUnitFiles Value="../Units"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <CodeGeneration>
+      <Optimizations>
+        <OptimizationLevel Value="3"/>
+      </Optimizations>
+    </CodeGeneration>
     <Linking>
       <Debugging>
         <DebugInfoType Value="dsDwarf3"/>
