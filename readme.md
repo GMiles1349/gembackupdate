@@ -29,6 +29,7 @@ gembackupdate is a Arch Linux CLI tool written in Free Pascal to help streamline
   * SysUtils.pp (FPC)
   * Process.pp (FPC)
   * Unix.pp (FPC)
+  * FileInfo.pp (FPC)
   * gemutil (located in Units repo)
   * gemclock (located in Units repo)
   * gemprogram (located in Units repo)
