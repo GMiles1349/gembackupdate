@@ -26,6 +26,7 @@ var
   UpdateCount: Integer = 0;
   EnableReboot: Boolean = False;
   RecommendReboot: Boolean = False;
+  NoUpdatesHalt: Boolean = False;
   EnableRank: Integer = 0;
   MirrorCount: Integer = 20;
   TimeOut: Integer = 10;
@@ -60,8 +61,15 @@ I: Integer;
     CheckOnline();
     CheckParams();
     CheckPrograms(); // check for timeshift, pacman, yay
-    GetUpdateCount(); // halts here on no update
+    GetUpdateCount();
     RankMirrors; // run reflector to update and rank mirrors if present
+
+    if NoUpdatesHalt then begin
+      WriteLn(Prefix + 'No Updates Available...');
+      WriteLn(Prefix + 'Exiting...');
+      Halt();
+    end;
+
     MakeSnapshot();
     DoUpdates();
     DoTimeprune();
@@ -243,9 +251,7 @@ op: TStringList;
       WriteLn(Prefix + op.Count.ToString() + ' updates available!');
       UpdateCount := op.Count;
     end else begin
-      WriteLn(Prefix + 'No updates available...');
-      WriteLn(Prefix + 'Exiting...');
-      Halt();
+      NoUpdatesHalt := True;
     end;
   end;
 
@@ -271,9 +277,8 @@ proc: TProcess;
     end else begin
 
       WriteLn(Prefix + 'Failed to create Timeshift snapshot!');
-      Write(Prefix + 'Download and apply updates anyway?');
 
-      if gemReadLnYesNo(0) = True then begin
+      if gemPromptYesNo(Prefix + 'Download and apply updates anyway?', 0) = True then begin
         WriteLn(Prefix + 'Continuing...');
       end else begin
         ErrHalt('User requested abortion.');
@@ -356,9 +361,8 @@ Clock: TGEMClock;
       if RecommendReboot = True then begin
 
         WriteLn(Prefix + 'initcpios have been updated due to kernel or module update/installation! Reboot recommended!');
-        Write(Prefix + 'Do you want to reboot?');
 
-        if gemReadLnYesNo(1) = False then begin
+        if gemPromptYesNo('Do you want to reboot?', 1) = False then begin
           Exit();
         end;
 
